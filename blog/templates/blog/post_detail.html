@@ -1,0 +1,31 @@
+{% extends 'mailing/base.html' %}
+{% load blog_tags %}
+
+{% block content %}
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-4 d-flex align-items-center justify-content-center mb-4">
+                <img src="{{ object.image | media_path }}" class="img-fluid rounded-start" style="height: 300px;"
+                     alt="Post Image">
+            </div>
+        </div>
+        <div class="row justify-content-center mt-3">
+            <div class="col-md-8">
+                <div class="text-center">
+                    <h2 class="mt-4">{{ object.title }}</h2>
+                    <p>{{ object.body }}</p>
+                    <p><small class="text-muted">{{ object.created_at }}</small></p>
+                    <p>Просмотры: {{ object.views_count }}</p>
+                    {% if user == object.author %}
+                        <div class="col-md-4 mx-auto mb-4">
+                            <a href="{% url 'blog:post_update' object.pk %}" class="btn btn-warning btn-lg btn-block">Изменить</a>
+                        </div>
+                        <div class="col-md-4 mx-auto mb-4">
+                            <a href="{% url 'blog:post_delete' object.pk %}" class="btn btn-danger btn-lg btn-block">Удалить</a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
