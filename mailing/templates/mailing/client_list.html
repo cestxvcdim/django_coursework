@@ -1,0 +1,31 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+    <div class="row justify-content-center">
+        <div class="col-md-4 d-flex align-items-center justify-content-center mb-4">
+            <a href="{% url 'mailing:client_create' %}" class="btn btn-success btn-lg btn-block">
+                Добавить нового клиента
+            </a>
+        </div>
+    </div>
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for client in object_list %}
+            <div class="col">
+                <div class="card h-100">
+                    <div class="card-header">
+                        <div class="row justify-content-center">
+                            <h4 class="my-0 font-weight-normal">{{ client.email }}</h4>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="row justify-content-center">
+                            <a href="{% url 'mailing:client_detail' client.pk %}" class="btn btn-lg btn-block btn-outline-primary">
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% endblock %}

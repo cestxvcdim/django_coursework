@@ -16,7 +16,7 @@
                     <p>{{ object.body }}</p>
                     <p><small class="text-muted">{{ object.created_at }}</small></p>
                     <p>Просмотры: {{ object.views_count }}</p>
-                    {% if user == object.author %}
+                    {% if user == object.author or user.is_superuser %}
                         <div class="col-md-4 mx-auto mb-4">
                             <a href="{% url 'blog:post_update' object.pk %}" class="btn btn-warning btn-lg btn-block">Изменить</a>
                         </div>

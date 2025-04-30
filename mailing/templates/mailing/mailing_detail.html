@@ -1,0 +1,25 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <h2 class="display-4">{{ object.title }}</h2>
+                <p class="lead">Начало рассылки: {{ object.start_sending }}</p>
+                <p class="lead">Конец рассылки: {{ object.end_sending }}</p>
+                <p class="lead">Периодичность: {{ object.frequency }}</p>
+                <p class="lead">Статус: {{ object.status }}</p>
+                <div class="mt-2">
+                    {% if user == object.creator or user.is_superuser %}
+                        <a href="{% url 'mailing:mailing_update' object.pk %}" class="btn btn-warning btn-lg btn-block">
+                            Изменить
+                        </a>
+                        <a href="{% url 'mailing:mailing_delete' object.pk %}" class="btn btn-danger btn-lg btn-block">
+                            Удалить
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

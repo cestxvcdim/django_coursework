@@ -1,0 +1,29 @@
+{% extends 'mailing/base.html' %}
+
+{% block content %}
+    <div class="container mt-5 mb-5">
+        <form method="post" enctype="multipart/form-data" class="mb-4">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <h2>Форма рассылки</h2>
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button type="submit" class="btn btn-lg btn-block btn-outline-primary">
+                        {% if object %}
+                            Сохранить
+                        {% else %}
+                            Создать
+                        {% endif %}
+                    </button>
+                </div>
+                <div class="col-md-6">
+                    <h2>Форма сообщения</h2>
+                    {{ formset.management_form }}
+                    {% for form in formset.forms %}
+                        {{ form.as_p }}
+                    {% endfor %}
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock %}

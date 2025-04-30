@@ -20,4 +20,4 @@ class MailingAdmin(admin.ModelAdmin):
 
 @admin.register(MailingAttempt)
 class MailingAttemptAdmin(admin.ModelAdmin):
-    list_display = ('pk', 'last_attempt_time')
+    list_display = ('pk', 'last_attempt')
