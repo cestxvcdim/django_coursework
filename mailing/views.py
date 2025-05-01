@@ -154,6 +154,7 @@ class MailingCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
 
 class MailingUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Mailing
+    form_class = MailingForm
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
