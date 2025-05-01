@@ -17,6 +17,10 @@
                         <a href="{% url 'mailing:mailing_delete' object.pk %}" class="btn btn-danger btn-lg btn-block">
                             Удалить
                         </a>
+                    {% elif perms.mailing.can_deactivate_mailing %}
+                        <a href="{% url 'mailing:mailing_update' object.pk %}" class="btn btn-warning btn-lg btn-block">
+                            Завершить
+                        </a>
                     {% endif %}
                 </div>
             </div>

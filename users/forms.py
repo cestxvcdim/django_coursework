@@ -36,3 +36,14 @@ class UserPasswordSetForm(StyleFormMixin, SetPasswordForm):
 class UserAuthenticationForm(StyleFormMixin, AuthenticationForm):
     class Meta:
         model = User
+
+
+class UserManagerForm(StyleFormMixin, UserChangeForm):
+    class Meta:
+        model = User
+        fields = ('is_active', )
+
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['password'].widget = forms.HiddenInput()

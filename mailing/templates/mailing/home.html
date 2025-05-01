@@ -12,15 +12,33 @@
     <div class="row justify-content-center">
         <div class="col-md-4 d-flex align-items-center justify-content-center mb-4">
             <a href="{% url 'mailing:mailing_list' %}" class="btn btn-primary btn-lg btn-block">
-                Посмотреть мои рассылки
+                {% if user.is_superuser or perms.mailing.view_mailing %}
+                    Посмотреть все рассылки
+                {% else %}
+                    Посмотреть мои рассылки
+                {% endif %}
             </a>
         </div>
         <div class="col-md-4 d-flex align-items-center justify-content-center mb-4">
             <a href="{% url 'mailing:client_list' %}" class="btn btn-primary btn-lg btn-block">
-                Посмотреть моих клиентов
+                {% if user.is_superuser or perms.mailing.view_client %}
+                    Посмотреть всех клиентов
+                {% else %}
+                    Посмотреть моих клиентов
+                {% endif %}
             </a>
         </div>
     </div>
+    <br>
+    {% if user.is_superuser or perms.users.view_user %}
+        <div class="row justify-content-center">
+            <div class="col-md-4 d-flex align-items-center justify-content-center mb-4">
+                <a href="{% url 'users:user_list' %}" class="btn btn-warning btn-lg btn-block">
+                    Посмотреть пользователей
+                </a>
+            </div>
+        </div>
+    {% endif %}
 {% else %}
     <div class="row justify-content-center">
         <div class="col-md-6 d-flex align-items-center justify-content-center mb-4">

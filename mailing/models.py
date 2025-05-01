@@ -63,6 +63,9 @@ class Mailing(models.Model):
     class Meta:
         verbose_name = 'рассылка'
         verbose_name_plural = 'рассылки'
+        permissions = [
+            ('can_deactivate_mailing', 'Can deactivate mailing'),
+        ]
 
 
 class Message(models.Model):

@@ -1,15 +1,16 @@
 import secrets
 
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, \
     PasswordResetCompleteView, LoginView
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy, reverse
-from django.views.generic import CreateView, UpdateView, TemplateView
+from django.views.generic import CreateView, UpdateView, TemplateView, ListView, DetailView
 from django.core.mail import send_mail
 
 from config import settings
-from users.forms import UserRegisterForm, UserProfileForm, UserPasswordResetForm, UserPasswordSetForm, UserAuthenticationForm
+from users.forms import UserRegisterForm, UserProfileForm, UserPasswordResetForm, UserPasswordSetForm, \
+    UserAuthenticationForm, UserManagerForm
 from users.models import User
 
 
@@ -83,3 +84,32 @@ class UserPasswordResetConfirmView(PasswordResetConfirmView):
 
 class UserPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'users/password_reset_complete.html'
+
+
+class UserListView(LoginRequiredMixin, UserPassesTestMixin, ListView):
+    model = User
+
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user.groups.filter(name="Manager").exists()
+
+
+class UserDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
+    model = User
+    context_object_name = 'user_object'
+
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user.groups.filter(name="Manager").exists()
+
+
+class UserUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = User
+    form_class = UserManagerForm
+
+    def get_success_url(self):
+        return reverse('users:user_detail', args=[self.kwargs['pk']])
+
+    def test_func(self):
+        user = self.request.user
+        return (user.is_superuser or user.groups.filter(name="Manager").exists()) and user != self.get_object() and not self.get_object().is_superuser

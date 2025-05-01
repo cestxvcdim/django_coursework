@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.forms import inlineformset_factory
 from django.shortcuts import render
 from django.urls import reverse_lazy, reverse
@@ -24,17 +25,20 @@ def contacts(request):
     return render(request, 'mailing/contacts.html')
 
 
-class ClientListView(ListView):
+class ClientListView(LoginRequiredMixin, ListView):
     model = Client
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         user = self.request.user
-        context_data['object_list'] = Client.objects.filter(user=user)
+        if user.groups.filter(name="Manager").exists() or user.is_superuser:
+            context_data['object_list'] = Client.objects.all()
+        else:
+            context_data['object_list'] = Client.objects.filter(user=user)
         return context_data
 
 
-class ClientDetailView(DetailView):
+class ClientDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Client
 
     def get_context_data(self, **kwargs):
@@ -44,8 +48,12 @@ class ClientDetailView(DetailView):
         context_data['client_full_name'] = client_info['full_name']
         return context_data
 
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user == self.get_object().user or user.groups.filter(name="Manager").exists()
 
-class ClientCreateView(CreateView):
+
+class ClientCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Client
     form_class = ClientForm
     success_url = reverse_lazy('mailing:client_list')
@@ -59,35 +67,54 @@ class ClientCreateView(CreateView):
 
         return super().form_valid(form)
 
+    def test_func(self):
+        user = self.request.user
+        return not user.groups.filter(name="Manager").exists()
 
-class ClientUpdateView(UpdateView):
+
+class ClientUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Client
     form_class = ClientForm
 
     def get_success_url(self):
         return reverse('mailing:client_detail', args=[self.kwargs['pk']])
 
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user == self.get_object().user
 
-class ClientDeleteView(DeleteView):
+
+class ClientDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Client
     success_url = reverse_lazy('mailing:client_list')
 
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user == self.get_object().user
 
-class MailingListView(ListView):
+
+class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
         user = self.request.user
-        context_data['object_list'] = Mailing.objects.filter(creator=user)
+        if user.groups.filter(name="Manager").exists() or user.is_superuser:
+            context_data['object_list'] = Mailing.objects.all()
+        else:
+            context_data['object_list'] = Mailing.objects.filter(creator=user)
         return context_data
 
 
-class MailingDetailView(DetailView):
+class MailingDetailView(LoginRequiredMixin, UserPassesTestMixin, DetailView):
     model = Mailing
 
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user == self.get_object().creator or user.groups.filter(name="Manager").exists()
 
-class MailingCreateView(CreateView):
+
+class MailingCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Mailing
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
@@ -100,6 +127,11 @@ class MailingCreateView(CreateView):
         else:
             context_data['formset'] = MessageFormset()
         return context_data
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['clients'].queryset = Client.objects.filter(user=self.request.user)
+        return form
 
     def form_valid(self, form):
         formset = self.get_context_data()['formset']
@@ -115,10 +147,13 @@ class MailingCreateView(CreateView):
 
         return super().form_valid(form)
 
+    def test_func(self):
+        user = self.request.user
+        return not user.groups.filter(name="Manager").exists()
 
-class MailingUpdateView(UpdateView):
+
+class MailingUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Mailing
-    form_class = MailingForm
 
     def get_context_data(self, **kwargs):
         context_data = super().get_context_data(**kwargs)
@@ -128,6 +163,11 @@ class MailingUpdateView(UpdateView):
         else:
             context_data['formset'] = MessageFormset(instance=self.object)
         return context_data
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+        form.fields['clients'].queryset = Client.objects.filter(user=self.request.user)
+        return form
 
     def form_valid(self, form):
         formset = self.get_context_data()['formset']
@@ -141,7 +181,15 @@ class MailingUpdateView(UpdateView):
     def get_success_url(self):
         return reverse('mailing:mailing_detail', args=[self.kwargs['pk']])
 
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user == self.get_object().creator or user.groups.filter(name="Manager").exists()
 
-class MailingDeleteView(DeleteView):
+
+class MailingDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
     model = Mailing
     success_url = reverse_lazy('mailing:mailing_list')
+
+    def test_func(self):
+        user = self.request.user
+        return user.is_superuser or user == self.get_object().creator
