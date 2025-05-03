@@ -6,6 +6,7 @@ from django.urls import reverse_lazy, reverse
 
 from django.views.generic import TemplateView, ListView, DetailView, CreateView, UpdateView, DeleteView
 
+from blog.services import get_random_posts
 from mailing.forms import ClientForm, MailingForm, MessageForm
 from mailing.models import Client, Mailing, Message
 from mailing.services import get_cached_client_info
@@ -13,6 +14,14 @@ from mailing.services import get_cached_client_info
 
 class HomeView(TemplateView):
     template_name = 'mailing/home.html'
+
+    def get_context_data(self, **kwargs):
+        context_data = super().get_context_data(**kwargs)
+        context_data['posts'] = get_random_posts()
+        context_data['total_mailings'] = Mailing.objects.count()
+        context_data['active_mailings'] = Mailing.objects.filter(status='started').count()
+        context_data['unique_clients'] = Client.objects.count()
+        return context_data
 
 
 @login_required

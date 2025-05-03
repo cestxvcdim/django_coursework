@@ -1,4 +1,5 @@
 {% extends 'mailing/base.html' %}
+{% load blog_tags %}
 
 {% block content %}
 {% if user.is_authenticated %}
@@ -39,6 +40,33 @@
             </div>
         </div>
     {% endif %}
+    <div class="container mt-5 mb-5">
+        <div class="row justify-content-center">
+            {% for post in posts %}
+                <div class="card mb-4" style="max-width: 100%;">
+                    <div class="row g-0">
+                        <div class="col-md-4 d-flex align-items-center justify-content-center">
+                            <img src="{{ post.image | media_path }}" class="img-fluid rounded-start" style="height: 300px;"
+                                 alt="Post Image">
+                        </div>
+                        <div class="col-md-8">
+                            <div class="card-body mt-2 mb-2">
+                                <h2 class="my-0 mr-md-auto font-weight-bold">{{ post.title }}</h2>
+                                <br>
+                                <p class="card-text">{{ post.body | truncatechars:100 }}</p>
+                                <p class="card-text">{{ post.created_at }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="col-md-4 offset-md-1">
+        <p class="my-0 font-weight-normal">Количество рассылок: {{ total_mailings }}</p>
+        <p class="my-0 font-weight-normal">Количество активных рассылок: {{ active_mailings }}</p>
+        <p class="my-0 font-weight-normal">Количество клиентов: {{ unique_clients }}</p><br>
+    </div>
 {% else %}
     <div class="row justify-content-center">
         <div class="col-md-6 d-flex align-items-center justify-content-center mb-4">
